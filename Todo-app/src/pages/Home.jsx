@@ -1,32 +1,36 @@
-import { useState } from "react";
+import React from "react";
+import useTodos from "../hooks/useTodos";
+import TodoInput from "../components/TodoInput";
+import TodoList from "../components/TodoList";
 
 export default function Home() {
-  const [todos, setTodos] = useState([]);
-  const [input, setInput] = useState("");
+  const [todos, setTodos] = useTodos(); // Custom hook handles state + persistence
 
-  const addTodo = () => {
-    if (!input.trim()) return;
-    setTodos([...todos, { id: Date.now(), text: input }]);
-    setInput("");
+  // Add todo immutably
+  const addTodo = (text) => {
+    setTodos([...todos, { id: Date.now(), text, completed: false }]);
+  };
+
+  // Toggle completed status immutably
+  const toggleTodo = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    );
+  };
+
+  // Delete todo immutably
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
   return (
     <div>
       <h1>Advanced Todo App</h1>
 
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Enter todo"
-      />
-
-      <button onClick={addTodo}>Add Todo</button>
-
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.text}</li>
-        ))}
-      </ul>
+      <TodoInput addTodo={addTodo} />
+      <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
     </div>
   );
 }
